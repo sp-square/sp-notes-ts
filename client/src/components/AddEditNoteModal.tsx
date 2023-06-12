@@ -1,18 +1,23 @@
 import { useState } from 'react';
 import { Modal, Form, Button, InputGroup } from 'react-bootstrap';
-import { Note } from '../models/note';
+import { Note as NoteModel } from '../models/note';
 import { NoteInput } from '../api/notes_api';
 import * as NotesApi from '../api/notes_api';
 
-interface AddNoteModalProps {
+interface AddEditNoteModalProps {
+	noteToEdit?: NoteModel;
 	onDismiss: () => void;
-	onNoteSaved: (note: Note) => void;
+	onNoteSaved: (note: NoteModel) => void;
 }
 
-const AddNoteModal = ({ onDismiss, onNoteSaved }: AddNoteModalProps) => {
-	const [noteTitle, setNoteTitle] = useState('');
-	const [noteTopic, setNoteTopic] = useState('');
-	const [noteText, setNoteText] = useState('');
+const AddEditNoteModal = ({
+	noteToEdit,
+	onDismiss,
+	onNoteSaved,
+}: AddEditNoteModalProps) => {
+	const [noteTitle, setNoteTitle] = useState(`${noteToEdit?.title || ''}`);
+	const [noteTopic, setNoteTopic] = useState(`${noteToEdit?.topic || ''}`);
+	const [noteText, setNoteText] = useState(`${noteToEdit?.text || ''}`);
 	const [validated, setValidated] = useState(false);
 
 	const handleChange = (event: any) => {
@@ -40,13 +45,17 @@ const AddNoteModal = ({ onDismiss, onNoteSaved }: AddNoteModalProps) => {
 		}
 		setValidated(true);
 		try {
-			let noteResponse: Note;
+			let noteResponse: NoteModel;
 			const noteInput: NoteInput = {
 				title: noteTitle,
 				topic: noteTopic,
 				text: noteText,
 			};
-			noteResponse = await NotesApi.createNote(noteInput);
+			if (noteToEdit) {
+				noteResponse = await NotesApi.updateNote(noteToEdit._id, noteInput);
+			} else {
+				noteResponse = await NotesApi.createNote(noteInput);
+			}
 			onNoteSaved(noteResponse);
 		} catch (err) {
 			console.error(err);
@@ -56,11 +65,11 @@ const AddNoteModal = ({ onDismiss, onNoteSaved }: AddNoteModalProps) => {
 	return (
 		<Modal show onHide={onDismiss}>
 			<Modal.Header>
-				<Modal.Title>AddNote</Modal.Title>
+				<Modal.Title>{noteToEdit ? 'Edit Note' : 'Add Note'}</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<Form
-					id="addNoteForm"
+					id="addEditNoteForm"
 					onSubmit={handleFormSubmit}
 					noValidate
 					validated={validated}
@@ -111,7 +120,7 @@ const AddNoteModal = ({ onDismiss, onNoteSaved }: AddNoteModalProps) => {
 				</Form>
 			</Modal.Body>
 			<Modal.Footer>
-				<Button type="submit" form="addNoteForm">
+				<Button type="submit" form="addEditNoteForm">
 					Save
 				</Button>
 			</Modal.Footer>
@@ -119,4 +128,4 @@ const AddNoteModal = ({ onDismiss, onNoteSaved }: AddNoteModalProps) => {
 	);
 };
 
-export default AddNoteModal;
+export default AddEditNoteModal;

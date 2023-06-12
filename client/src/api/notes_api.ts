@@ -1,21 +1,21 @@
 import { Note } from '../models/note';
 
 async function fetchData(endpoint: RequestInfo, options?: RequestInit) {
-	const response = await fetch(endpoint, options);
-	if (response.ok) {
-		return response;
+	const apiResponse = await fetch(endpoint, options);
+	if (apiResponse.ok) {
+		return apiResponse;
 	} else {
-		const errorBody = await response.json();
+		const errorBody = await apiResponse.json();
 		const errorMsg = errorBody.error;
 		throw Error(errorMsg);
 	}
 }
 
 export async function fetchNotes(): Promise<Note[]> {
-	const response = await fetchData('/api/notes', {
+	const apiResponse = await fetchData('/api/notes', {
 		method: 'GET',
 	});
-	return await response.json();
+	return await apiResponse.json();
 }
 
 export interface NoteInput {
@@ -25,14 +25,28 @@ export interface NoteInput {
 }
 
 export async function createNote(note: NoteInput): Promise<Note> {
-	const response = await fetchData('/api/notes', {
+	const apiResponse = await fetchData('/api/notes', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify(note),
 	});
-	return response.json();
+	return apiResponse.json();
+}
+
+export async function updateNote(
+	noteId: string,
+	note: NoteInput
+): Promise<Note> {
+	const apiResponse = await fetchData(`/api/notes/${noteId}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(note),
+	});
+	return apiResponse.json();
 }
 
 export async function deleteNote(noteId: string) {

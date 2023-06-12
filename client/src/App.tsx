@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Note as NoteModel } from './models/note';
 import * as NotesApi from './api/notes_api';
 import Note from './components/Note';
-import AddNoteModal from './components/AddNoteModal';
+import AddEditNoteModal from './components/AddEditNoteModal';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import styles from './styles/NotesPage.module.css';
@@ -10,6 +10,7 @@ import styles from './styles/NotesPage.module.css';
 function App() {
 	const [notes, setNotes] = useState<NoteModel[]>([]);
 	const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+	const [noteToEdit, setNoteToEdit] = useState<NoteModel | null>(null);
 
 	useEffect(() => {
 		async function loadNotes() {
@@ -50,17 +51,34 @@ function App() {
 							<Note
 								note={note}
 								className={styles.note}
+								onClickNote={setNoteToEdit}
 								onDeleteNote={deleteNote}
 							></Note>
 						</Col>
 					))}
 				</Row>
 				{showAddNoteModal && (
-					<AddNoteModal
+					<AddEditNoteModal
 						onDismiss={() => setShowAddNoteModal(false)}
 						onNoteSaved={(newNote) => {
 							setNotes([...notes, newNote]);
 							setShowAddNoteModal(false);
+						}}
+					/>
+				)}
+				{noteToEdit && (
+					<AddEditNoteModal
+						noteToEdit={noteToEdit}
+						onDismiss={() => setNoteToEdit(null)}
+						onNoteSaved={(updatedNote) => {
+							setNotes(
+								notes.map((existingNote) =>
+									existingNote._id === updatedNote._id
+										? updatedNote
+										: existingNote
+								)
+							);
+							setNoteToEdit(null);
 						}}
 					/>
 				)}

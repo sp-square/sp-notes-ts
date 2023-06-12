@@ -7,14 +7,18 @@ import { formatDate } from '../utils/formatDate';
 interface NoteProps {
 	note: NoteModel;
 	className?: string;
+	onClickNote: (note: NoteModel) => void;
 	onDeleteNote: (note: NoteModel) => void;
 }
 
-const Note = ({ note, className, onDeleteNote }: NoteProps) => {
+const Note = ({ note, className, onClickNote, onDeleteNote }: NoteProps) => {
 	const { title, text, topic, createdAt, updatedAt } = note;
 
 	return (
-		<Card className={`${styles.noteCard} ${className}`}>
+		<Card
+			className={`${styles.noteCard} ${className}`}
+			onClick={() => onClickNote(note)}
+		>
 			<Card.Body className={styles.cardBody}>
 				<Card.Title className={styles.cardTitle}>
 					{title}
