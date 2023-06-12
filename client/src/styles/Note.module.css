@@ -7,6 +7,13 @@
 	mask-image: linear-gradient(180deg, #000 60%, transparent);
 }
 
+.cardTitle {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+}
+
 .cardText {
 	white-space: pre-line;
 }
