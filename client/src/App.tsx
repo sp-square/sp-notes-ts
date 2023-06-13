@@ -3,23 +3,29 @@ import { Note as NoteModel } from './models/note';
 import * as NotesApi from './api/notes_api';
 import Note from './components/Note';
 import AddEditNoteModal from './components/AddEditNoteModal';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button, Spinner } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import styles from './styles/NotesPage.module.css';
 
 function App() {
 	const [notes, setNotes] = useState<NoteModel[]>([]);
+	const [notesLoading, setNotesLoading] = useState(true);
+	const [showNotesLoadingError, setShowNotesLoadingError] = useState(false);
 	const [showAddNoteModal, setShowAddNoteModal] = useState(false);
 	const [noteToEdit, setNoteToEdit] = useState<NoteModel | null>(null);
 
 	useEffect(() => {
 		async function loadNotes() {
 			try {
+				setShowNotesLoadingError(false);
+				setNotesLoading(true);
 				const notes = await NotesApi.fetchNotes();
 				setNotes(notes);
 			} catch (err) {
 				console.error(err);
-				alert(err);
+				setShowNotesLoadingError(false);
+			} finally {
+				setNotesLoading(false);
 			}
 		}
 		loadNotes();
@@ -36,7 +42,7 @@ function App() {
 
 	return (
 		<div className="bg">
-			<Container>
+			<Container className={styles.notesPage}>
 				<Button
 					className={`mb-4 w-100 ${styles.addButton}`}
 					variant="dark"
@@ -45,18 +51,30 @@ function App() {
 					<FaPlus className="text-warning" />
 					Add new note
 				</Button>
-				<Row xs={1} md={2} xl={3} className="g-4">
-					{notes.map((note) => (
-						<Col key={note._id}>
-							<Note
-								note={note}
-								className={styles.note}
-								onClickNote={setNoteToEdit}
-								onDeleteNote={deleteNote}
-							></Note>
-						</Col>
-					))}
-				</Row>
+				{notesLoading && <Spinner animation="border" variant="primary" />}
+				{showNotesLoadingError && (
+					<p>Something went wrong. Please refresh the page.</p>
+				)}
+				{!notesLoading && !showNotesLoadingError && (
+					<>
+						{notes.length > 0 ? (
+							<Row xs={1} md={2} xl={3} className="g-4 w-100">
+								{notes.map((note) => (
+									<Col key={note._id}>
+										<Note
+											note={note}
+											className={styles.note}
+											onClickNote={setNoteToEdit}
+											onDeleteNote={deleteNote}
+										></Note>
+									</Col>
+								))}
+							</Row>
+						) : (
+							<p>You don't have any notes yet.</p>
+						)}
+					</>
+				)}
 				{showAddNoteModal && (
 					<AddEditNoteModal
 						onDismiss={() => setShowAddNoteModal(false)}
