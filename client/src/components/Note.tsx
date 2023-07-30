@@ -1,6 +1,6 @@
-import { Note as NoteModel } from '../models/note';
 import { Card } from 'react-bootstrap';
 import { MdDelete } from 'react-icons/md';
+import { Note as NoteModel } from '../models/note';
 import styles from '../styles/Note.module.css';
 import { formatDate } from '../utils/formatDate';
 

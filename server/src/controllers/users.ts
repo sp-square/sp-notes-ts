@@ -3,6 +3,19 @@ import createHttpError from 'http-errors';
 import bcrypt from 'bcrypt';
 import UserModel from '../models/user';
 
+export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
+	try {
+		console.log('req.session in getAuthenticatedUser', req.session);
+		if (!req.session.userId)
+			throw createHttpError(401, 'User not authenticated.');
+
+		const user = await UserModel.findById(req.session.userId).select('+email');
+		res.status(200).json(user);
+	} catch (err) {
+		next(err);
+	}
+};
+
 interface SignUpBody {
 	username?: string;
 	email?: string;
@@ -46,9 +59,53 @@ export const signUp: RequestHandler<
 		});
 
 		req.session.userId = newUser._id;
-
+		console.log('req.session', req.session);
 		res.status(201).json(newUser);
 	} catch (err) {
 		next(err);
 	}
+};
+
+interface LoginBody {
+	username?: string;
+	password?: string;
+}
+
+export const login: RequestHandler<
+	unknown,
+	unknown,
+	LoginBody,
+	unknown
+> = async (req, res, next) => {
+	try {
+		if (!req.body.username || !req.body.password)
+			throw createHttpError(400, 'Parameters Missing.');
+
+		const user = await UserModel.findOne({
+			username: req.body.username,
+		}).select('+password +email');
+
+		if (!user) throw createHttpError(401, 'Invalid credentials.');
+
+		const passwordMatch = await bcrypt.compare(
+			req.body.password,
+			user.password
+		);
+
+		if (!passwordMatch) throw createHttpError(401, 'Invalid credentials.');
+
+		req.session.userId = user._id;
+
+		res.status(201).json(user);
+	} catch (err) {
+		next(err);
+	}
+};
+
+export const logout: RequestHandler = async (req, res, next) => {
+	// session.destroy() doesn't return a promise, so we use a callback function
+	req.session.destroy((err) => {
+		if (err) next(err);
+		else res.sendStatus(200);
+	});
 };

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Modal, Form, Button, InputGroup } from 'react-bootstrap';
-import { Note as NoteModel } from '../models/note';
-import { NoteInput } from '../api/notes_api';
-import * as NotesApi from '../api/notes_api';
+import { Note as NoteModel } from '../../models/note';
+import { NoteInput } from '../../api/notes_api';
+import * as NotesApi from '../../api/notes_api';
 
 interface AddEditNoteModalProps {
 	noteToEdit?: NoteModel;
@@ -64,7 +64,7 @@ const AddEditNoteModal = ({
 
 	return (
 		<Modal show onHide={onDismiss}>
-			<Modal.Header>
+			<Modal.Header closeButton>
 				<Modal.Title>{noteToEdit ? 'Edit Note' : 'Add Note'}</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
