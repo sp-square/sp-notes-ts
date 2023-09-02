@@ -3,6 +3,9 @@ import { fetchData } from '../utils/fetchData';
 
 export async function getLoggedInUser(): Promise<User> {
 	const response = await fetchData('/api/users/', { method: 'GET' });
+	if (!response.ok) {
+		throw new Error(`Request failed with status code ${response.status}.`);
+	}
 	const loggedInUser = await response.json();
 	return loggedInUser;
 }
@@ -19,8 +22,10 @@ export async function signUp(credentials: SignUpCredentials): Promise<User> {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(credentials),
 	});
+	if (!response.ok) {
+		throw new Error(`Request failed with status code ${response.status}.`);
+	}
 	const signedUpUser = await response.json();
-	console.log('signedUpUser', signedUpUser);
 	return signedUpUser;
 }
 
@@ -35,6 +40,9 @@ export async function login(credentials: LoginCredentials): Promise<User> {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(credentials),
 	});
+	if (!response.ok) {
+		throw new Error(`Request failed with status code ${response.status}.`);
+	}
 	const loggedInUser = await response.json();
 	return loggedInUser;
 }

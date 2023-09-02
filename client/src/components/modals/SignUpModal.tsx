@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Form, Button, InputGroup } from 'react-bootstrap';
+import { Modal, Form, Button, InputGroup, Alert } from 'react-bootstrap';
 import { User as UserModel } from '../../models/user';
 import { SignUpCredentials } from '../../api/users_api';
 import * as UserApi from '../../api/users_api';
@@ -15,6 +15,7 @@ const SignUpModal = ({ onDismiss, onSignUpSuccessful }: SignUpModalProps) => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [validated, setValidated] = useState(false);
+	const [errorText, setErrorText] = useState<string | null>(null);
 
 	const handleChange = (event: any) => {
 		const { name, value } = event.target;
@@ -51,6 +52,7 @@ const SignUpModal = ({ onDismiss, onSignUpSuccessful }: SignUpModalProps) => {
 			newUser = await UserApi.signUp(userInput);
 			onSignUpSuccessful(newUser);
 		} catch (err) {
+			if (err instanceof Error) setErrorText(err.message);
 			console.error(err);
 		}
 	};
@@ -61,6 +63,7 @@ const SignUpModal = ({ onDismiss, onSignUpSuccessful }: SignUpModalProps) => {
 				<Modal.Title>Sign Up</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
+				{errorText && <Alert variant="danger">{errorText}</Alert>}
 				<Form
 					id="signUpForm"
 					onSubmit={handleFormSubmit}

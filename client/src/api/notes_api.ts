@@ -5,6 +5,9 @@ export async function fetchNotes(): Promise<Note[]> {
 	const apiResponse = await fetchData('/api/notes', {
 		method: 'GET',
 	});
+	if (!apiResponse.ok) {
+		throw new Error(`Request failed with status code ${apiResponse.status}.`);
+	}
 	return await apiResponse.json();
 }
 
@@ -22,6 +25,9 @@ export async function createNote(note: NoteInput): Promise<Note> {
 		},
 		body: JSON.stringify(note),
 	});
+	if (!apiResponse.ok) {
+		throw new Error(`Request failed with status code ${apiResponse.status}.`);
+	}
 	return apiResponse.json();
 }
 
@@ -36,6 +42,9 @@ export async function updateNote(
 		},
 		body: JSON.stringify(note),
 	});
+	if (!apiResponse.ok) {
+		throw new Error(`Request failed with status code ${apiResponse.status}.`);
+	}
 	return apiResponse.json();
 }
 
