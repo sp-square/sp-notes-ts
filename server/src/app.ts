@@ -7,6 +7,7 @@ import env from './util/validateEnv';
 import morgan from 'morgan';
 import notesRoutes from './routes/notes';
 import usersRoutes from './routes/users';
+import { requiresAuth } from './util/auth';
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use(
 	})
 );
 
-app.use('/api/notes', notesRoutes);
+app.use('/api/notes', requiresAuth, notesRoutes);
 app.use('/api/users', usersRoutes);
 
 // middleware: wrong endpoint handler

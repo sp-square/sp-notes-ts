@@ -1,4 +1,5 @@
 import express from 'express';
+import { requiresAuth } from '../util/auth';
 import {
 	getAuthenticatedUser,
 	signUp,
@@ -8,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.get('/', getAuthenticatedUser);
+router.get('/', requiresAuth, getAuthenticatedUser);
 
 router.post('/signup', signUp);
 

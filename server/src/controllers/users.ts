@@ -5,10 +5,6 @@ import UserModel from '../models/user';
 
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
 	try {
-		console.log('req.session in getAuthenticatedUser', req.session);
-		if (!req.session.userId)
-			throw createHttpError(401, 'User not authenticated.');
-
 		const user = await UserModel.findById(req.session.userId).select('+email');
 		res.status(200).json(user);
 	} catch (err) {
